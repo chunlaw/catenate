@@ -23,7 +23,7 @@ const pwaOptions: Partial<VitePWAOptions> = {
   includeAssets: ["vite.svg"], // as favicon.ico
   manifest: {
     name: 'Catenate',
-    short_name: 'PWA',
+    short_name: 'CAT',
     theme_color: '#ffffff',
     icons: [
       {
