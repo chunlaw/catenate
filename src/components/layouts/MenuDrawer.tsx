@@ -28,7 +28,7 @@ const MenuDrawer = ({ open, onClose }: MenuDrawerProps) => {
   return (
     <Drawer open={open} onClose={onClose} anchor="left">
       <Box sx={rootSx}>
-        <Typography variant="h6">Pack</Typography>
+        <Typography variant="h6">Catenate</Typography>
         <Box flex={1} display="flex" flexDirection="column" minWidth={300}>
           {mode === "create" && (
             <Button
