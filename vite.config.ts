@@ -22,7 +22,7 @@ const pwaOptions: Partial<VitePWAOptions> = {
   base: "/",
   includeAssets: ["vite.svg"], // as favicon.ico
   manifest: {
-    name: 'React app template',
+    name: 'Catenate',
     short_name: 'PWA',
     theme_color: '#ffffff',
     icons: [
