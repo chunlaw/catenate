@@ -27,7 +27,7 @@ const pwaOptions: Partial<VitePWAOptions> = {
     theme_color: '#000',
     icons: [
       {
-        src: 'vite.svg',
+        src: 'android-chrome-512x512.png',
         sizes: 'any',
         purpose: 'any',
         type: "image/svg+xml"
