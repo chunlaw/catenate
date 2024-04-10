@@ -1,5 +1,5 @@
 import { Box, Button, Fab } from "@mui/material";
-import { useContext } from "react";
+import { useCallback, useContext, useEffect } from "react";
 import BoardContext from "../../context/BoardContext";
 import AppContext from "../../context/AppContext";
 import {
@@ -12,6 +12,32 @@ const PlayPanel = () => {
   const { solve, resetGame, isSolved } = useContext(BoardContext);
   const { availableProblems, problemIdx, prevProblem, nextProblem } =
     useContext(AppContext);
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      switch (e.key) {
+        case "ArrowLeft":
+          if (problemIdx > 0) prevProblem();
+          break;
+        case "ArrowRight":
+          if (true || problemIdx < availableProblems.length - 1) {
+            nextProblem();
+          }
+          break;
+        default:
+          break;
+      }
+    },
+    [nextProblem, prevProblem, problemIdx, availableProblems]
+  );
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [handleKeyDown]);
 
   return (
     <Box display="flex" flexDirection="column" width={400} alignItems="center">
@@ -40,7 +66,7 @@ const PlayPanel = () => {
         <Fab
           size="small"
           color="warning"
-          disabled={problemIdx === availableProblems.length - 1}
+          disabled={problemIdx >= availableProblems.length - 1}
           onClick={nextProblem}
         >
           <ArrowRightIcon />

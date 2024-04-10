@@ -63,7 +63,7 @@ const Board = () => {
           parseInt(box.dataset.x ?? "0", 10),
           parseInt(box.dataset.y ?? "0", 10),
           parseInt(box.dataset.color ?? "0", 10)
-        );
+        )();
       }
     },
     [getTouchingRef, handleMouseDown]
@@ -76,7 +76,7 @@ const Board = () => {
         handleMouseEnter(
           parseInt(box.dataset.x ?? "0", 10),
           parseInt(box.dataset.y ?? "0", 10)
-        );
+        )();
       }
     },
     [getTouchingRef, handleMouseEnter]

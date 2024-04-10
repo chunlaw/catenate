@@ -8,6 +8,9 @@ import { AppContextProvider } from "./context/AppContext.tsx";
 
 const theme = createTheme({
   palette: {
+    primary: {
+      main: "#fe3",
+    },
     mode: "dark",
   },
 });

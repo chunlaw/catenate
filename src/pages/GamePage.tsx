@@ -4,9 +4,11 @@ import CreatePanel from "../components/game/CreatePanel";
 import PlayPanel from "../components/game/PlayPanel";
 import { useContext } from "react";
 import AppContext from "../context/AppContext";
+import { Typography } from "@mui/material";
+import { replaceNumToThai } from "../utils";
 
 const GamePage = () => {
-  const { mode } = useContext(AppContext);
+  const { mode, problemIdx } = useContext(AppContext);
   return (
     <Box
       display="flex"
@@ -15,6 +17,11 @@ const GamePage = () => {
       alignItems="center"
       flex={1}
     >
+      {mode === "play" && (
+        <Typography variant="h3">
+          {replaceNumToThai(`${problemIdx + 1}`)}
+        </Typography>
+      )}
       <Box flex={1} display="flex" justifyContent="center" alignItems="center">
         <Board />
       </Box>

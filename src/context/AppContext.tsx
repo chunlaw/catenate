@@ -8,10 +8,12 @@ import React, {
   useState,
 } from "react";
 import BoardContext from "./BoardContext";
+import { Problem } from "../type";
 
 interface AppContextState {
   mode: "play" | "create";
   colorPalette: string[];
+  isCopied: boolean;
   errorMsg: string;
   problemIdx: number;
   problems: Problem[];
@@ -19,34 +21,47 @@ interface AppContextState {
 
 interface AppContextValue extends AppContextState {
   availableProblems: Problem[];
+  availableExtraProblems: Problem[];
   problemNameMap: Record<string, number>;
   setColor: (color: string, idx: number) => void;
   toggleMode: () => void;
   createNewBoard: () => void;
   gotoProblem: (uuid: string) => void;
   setErrorMsg: (msg: string) => void;
+  setCopied: (isCopied: boolean) => void;
   saveProblem: (grid: number[][]) => void;
+  loadProblem: (base64: string) => void;
   prevProblem: () => void;
   nextProblem: () => void;
+  shareProblem: (uuid: string) => Promise<void>;
 }
 
 const AppContext = React.createContext({} as AppContextValue);
 
 export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   const [state, setState] = useState<AppContextState>(DEFAULT_STATE);
-  const { setGrid, isSolved } = useContext(BoardContext);
+  const { setGrid, isSolved, grid } = useContext(BoardContext);
   const problemIdxRef = useRef<number>(-2);
 
   const availableProblems = useMemo(() => {
+    const _problems = state.problems.filter(({ extra }) => !extra);
+    if (_problems.length === 0) return [];
     const problems: Problem[] = [];
     let i = 0;
     do {
-      problems.push(state.problems[i++]);
+      if (_problems[i].extra) {
+        i++;
+      }
+      problems.push(_problems[i++]);
       if (!problems[problems.length - 1].clean) {
         break;
       }
-    } while (i < state.problems.length);
+    } while (i < _problems.length);
     return problems.reverse();
+  }, [state.problems]);
+
+  const availableExtraProblems = useMemo(() => {
+    return state.problems.filter(({ extra }) => extra).reverse();
   }, [state.problems]);
 
   const problemNameMap = useMemo(
@@ -93,7 +108,11 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   }, [state.problemIdx]);
 
   useEffect(() => {
-    if (state.problemIdx !== -1 && state.problemIdx !== problemIdxRef.current) {
+    if (
+      state.problems.length &&
+      state.problemIdx !== -1 &&
+      state.problemIdx !== problemIdxRef.current
+    ) {
       setGrid(state.problems[state.problemIdx].grid);
     }
     problemIdxRef.current = state.problemIdx;
@@ -104,6 +123,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
       if (state.mode === "play" && isSolved) {
         const problems = JSON.parse(JSON.stringify(state.problems));
         problems[prev.problemIdx].clean = true;
+        problems[prev.problemIdx].solution = JSON.parse(JSON.stringify(grid));
         return {
           ...prev,
           problems,
@@ -111,7 +131,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
       }
       return prev;
     });
-  }, [state.mode, isSolved]);
+  }, [state.mode, isSolved, grid]);
 
   const createNewBoard = useCallback(() => {
     const grid: number[][] = [];
@@ -139,27 +159,73 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     }));
   }, []);
 
+  const setCopied = useCallback((isCopied: boolean) => {
+    setState((prev) => ({
+      ...prev,
+      isCopied,
+    }));
+  }, []);
+
   const saveProblem = useCallback((grid: number[][]) => {
     setState((prev) => {
       const problems: Problem[] = JSON.parse(JSON.stringify(prev.problems));
-      if (prev.problemIdx === -1) {
+      let nextProblemIdx = 0;
+      if (prev.problemIdx === -1 || !problems[prev.problemIdx].extra) {
         problems.push({
           uuid: crypto.randomUUID(),
           grid: JSON.parse(JSON.stringify(grid)),
           clean: false,
+          extra: true,
         });
+        nextProblemIdx = problems.length - 1;
       } else {
         problems[prev.problemIdx].grid = JSON.parse(JSON.stringify(grid));
         problems[prev.problemIdx].clean = false;
+        nextProblemIdx = prev.problemIdx;
       }
 
       return {
         ...prev,
         problems,
-        problemIdx:
-          prev.problemIdx === -1 ? problems.length - 1 : prev.problemIdx,
+        problemIdx: nextProblemIdx,
       };
     });
+  }, []);
+
+  const loadProblem = useCallback((base64: string) => {
+    if (base64) {
+      const { uuid, grid } = JSON.parse(atob(base64));
+      if (
+        Array.isArray(grid) &&
+        grid.length &&
+        Array.isArray(grid[0]) &&
+        typeof uuid === "string"
+      ) {
+        setState((prev) => {
+          const problems: Problem[] = JSON.parse(JSON.stringify(prev.problems));
+          let problemIdx: number = problems
+            .map(({ uuid }) => uuid)
+            .indexOf(uuid);
+          if (problemIdx === -1) {
+            problems.push({ uuid, grid, extra: true });
+            problemIdx = problems.length - 1;
+          } else if (
+            JSON.stringify(problems[problemIdx].grid) === JSON.stringify(grid)
+          ) {
+            return prev;
+          } else {
+            problems[problemIdx].grid = grid;
+          }
+          return {
+            ...prev,
+            problems,
+            problemIdx,
+          };
+        });
+        return;
+      }
+    }
+    throw new Error("Load error");
   }, []);
 
   const gotoProblem = useCallback(
@@ -190,20 +256,65 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     }));
   }, []);
 
+  useEffect(() => {
+    if (state.problems.length === 0) {
+      problemIdxRef.current = -1;
+      fetch("/problems.json")
+        .then((r) => r.json())
+        .then((problems: Problem[]) => {
+          setState((prev) => ({
+            ...prev,
+            problems,
+          }));
+        });
+    }
+  }, [state.problems]);
+
+  const shareProblem = useCallback(
+    (uuid: string) => {
+      const base64: string = state.problems.reduce((acc, cur) => {
+        if (uuid === cur.uuid) return btoa(JSON.stringify(cur));
+        return acc;
+      }, "");
+      if (base64) {
+        const title = "Try out my grid in Catenate";
+        const url = `https://catenate.chunlaw.io/diy/${base64}`;
+        if (navigator.share) {
+          return navigator.share({
+            title,
+            url: `https://catenate.chunlaw.io/diy/${base64}`,
+          });
+        } else if (navigator.clipboard) {
+          return navigator.clipboard.writeText(url).then(() => setCopied(true));
+        }
+      }
+      return Promise.resolve();
+    },
+    [state.problems]
+  );
+
+  if (state.problems.length === 0) {
+    return null;
+  }
+
   return (
     <AppContext.Provider
       value={{
         ...state,
         availableProblems,
+        availableExtraProblems,
         problemNameMap,
         setColor,
         toggleMode,
         createNewBoard,
         setErrorMsg,
+        setCopied,
         saveProblem,
+        loadProblem,
         gotoProblem,
         prevProblem,
         nextProblem,
+        shareProblem,
       }}
     >
       {children}
@@ -240,23 +351,8 @@ const DEFAULT_STATE: AppContextState = {
   colorPalette: JSON.parse(
     localStorage.getItem("colorPalette") ?? JSON.stringify(DEFAULT_COLORS)
   ),
+  isCopied: false,
   errorMsg: "",
   problemIdx: parseInt(localStorage.getItem("problemIdx") ?? "0", 10),
-  problems: JSON.parse(
-    localStorage.getItem("problems") ??
-      JSON.stringify([
-        {
-          uuid: "ba1ec5da-10cc-4d83-af8f-a94039c10efa",
-          grid: [
-            [1, 0, 0, 0, 0].map((v) => -v),
-            [0, 0, 0, 0, 0].map((v) => -v),
-            [2, 3, 4, 0, 0].map((v) => -v),
-            [0, 0, 0, 0, 0].map((v) => -v),
-            [0, 4, 0, 0, 0].map((v) => -v),
-            [0, 3, 2, 0, 1].map((v) => -v),
-          ],
-          clean: false,
-        },
-      ] as Problem[])
-  ),
+  problems: JSON.parse(localStorage.getItem("problems") ?? "[]"),
 };

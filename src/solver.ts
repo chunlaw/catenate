@@ -7,6 +7,27 @@ export const solveGrid = (grid: number[][]): number[][] | null => {
   const gridColors: number[] = []
 
   const checkValidality = (grid: number[][]) => {
+    // check degree
+    let deg = 0
+    let nextX = 0
+    let nextY = 0
+    for ( let i=0;i<grid.length;++i ) {
+      for ( let j=0;j<grid[i].length;++j ) {
+        deg = 0
+        if ( grid[i][j] ) {
+          for ( let k=0;k<4;++k ) {
+            nextX = i + dx[k]
+            nextY = j + dy[k]
+            if ( 0 <= nextX && nextX < grid.length && 0 <= nextY && nextY < grid[0].length && Math.abs(grid[i][j]) === Math.abs(grid[nextX][nextY])) {
+              deg += 1
+            }
+          }
+        }
+        if ( deg > 2 ) return false;
+      }
+    }
+
+    // check color connectivity
     for ( let c of gridColors ) {
       // init
       for ( let i=0;i<grid.length;++i ) {
@@ -29,8 +50,8 @@ export const solveGrid = (grid: number[][]): number[][] | null => {
 
       // start bfs
       let h = 0
-      let nextX = 0
-      let nextY = 0
+      nextX = 0
+      nextY = 0
       while ( h < q.length ) {
         for ( let i=0;i<4;++i ) {
           nextX = q[h][0] + dx[i]

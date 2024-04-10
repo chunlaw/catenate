@@ -32,8 +32,7 @@ const Layout = () => {
 export default Layout;
 
 const rootSx: SxProps<Theme> = {
-  height: "100dvh",
-  width: "100dvw",
+  height: "100%",
   flex: 1,
   display: "flex",
   flexDirection: "column",

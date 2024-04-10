@@ -24,7 +24,7 @@ const pwaOptions: Partial<VitePWAOptions> = {
   manifest: {
     name: 'Catenate',
     short_name: 'CAT',
-    theme_color: '#ffffff',
+    theme_color: '#000',
     icons: [
       {
         src: 'vite.svg',

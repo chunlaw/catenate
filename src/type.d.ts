@@ -1,5 +1,9 @@
-interface Problem {
+export interface Problem {
   uuid: string;
   grid: number[][];
-  clean: boolean;
+  solution?: number[][];
+  clean?: boolean;
+  extra?: boolean;
 }
+
+export type GameTab = "Stage" | "DIY"
