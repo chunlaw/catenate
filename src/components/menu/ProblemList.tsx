@@ -50,6 +50,7 @@ const ProblemSet = ({
           gotoProblem(_problems[index].uuid);
           onClick(e);
         }}
+        gap={2}
       >
         <GridCapture problem={_problems[index]} />
         <Typography variant="h4">

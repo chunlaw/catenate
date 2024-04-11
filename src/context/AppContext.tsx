@@ -11,6 +11,7 @@ import BoardContext from "./BoardContext";
 import { Problem } from "../type";
 
 interface AppContextState {
+  init: boolean;
   mode: "play" | "create";
   colorPalette: string[];
   isCopied: boolean;
@@ -257,18 +258,34 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    if (state.problems.length === 0) {
+    if (!state.init) {
       problemIdxRef.current = -1;
       fetch("/problems.json")
         .then((r) => r.json())
         .then((problems: Problem[]) => {
-          setState((prev) => ({
-            ...prev,
-            problems,
-          }));
-        });
+          setState((prev) => {
+            const savedProblems = prev.problems.reduce(
+              (acc, problem) => {
+                acc[problem.uuid] = problem;
+                return acc;
+              },
+              {} as Record<string, Problem>
+            );
+            return {
+              ...prev,
+              init: true,
+              problems: problems.map((problem) => {
+                if (savedProblems[problem.uuid]) {
+                  return savedProblems[problem.uuid];
+                }
+                return problem;
+              }),
+            };
+          });
+        })
+        .catch(() => {});
     }
-  }, [state.problems]);
+  }, [state.problems, state.init]);
 
   const shareProblem = useCallback(
     (uuid: string) => {
@@ -347,6 +364,7 @@ export const DEFAULT_COLORS = [
 ];
 
 const DEFAULT_STATE: AppContextState = {
+  init: false,
   mode: "play",
   colorPalette: JSON.parse(
     localStorage.getItem("colorPalette") ?? JSON.stringify(DEFAULT_COLORS)

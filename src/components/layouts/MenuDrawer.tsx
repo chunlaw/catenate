@@ -39,10 +39,7 @@ const MenuDrawer = ({ open, onClose }: MenuDrawerProps) => {
   const isAllSolved = useMemo(() => {
     return (
       import.meta.env.DEV ||
-      problems.reduce(
-        (acc, { extra, clean }) => Boolean(acc && (extra || clean)),
-        true
-      )
+      problems.filter(({ extra, clean }) => !extra && clean).length >= 20
     );
   }, [problems]);
 
@@ -107,7 +104,7 @@ const MenuDrawer = ({ open, onClose }: MenuDrawerProps) => {
       <Snackbar
         open={isCopied}
         onClose={() => setCopied(false)}
-        // autoHideDuration={1000}
+        autoHideDuration={1000}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
         message="Copied"
         sx={{ zIndex: 10000 }}
