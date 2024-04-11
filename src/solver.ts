@@ -155,5 +155,41 @@ export const getSolvable = (grid: number[][]): number[][] => {
       throw new Error("Illegal board: multiple cluster with same color found")
     }
   })
+
+  const _grid: number[][] = JSON.parse(JSON.stringify(grid))
+
+  const bfs = (x: number, y: number, c: number) => {
+    const q = [[x, y]]
+    let h = 0
+    while ( h < q.length ) {
+      let [i, j] = q[h]
+      for ( let k=0;k<4;++k ) {
+        nextX = i + dx[k]
+        nextY = j + dy[k]
+        if ( 0 <= nextX && nextX < _grid.length && 0 <= nextY && nextY < _grid[0].length  && Math.abs(_grid[nextX][nextY]) === Math.abs(c)) {
+          _grid[nextX][nextY] = 0
+          q.push([nextX, nextY])
+        }
+      }
+      ++h
+    }
+  }
+
+  for ( let c in colors ) {
+    let found = false
+    for ( let i=0;i<_grid.length;++i ) {
+      for ( let j=0;j<_grid[i].length;++j ) {
+        if ( `${Math.abs(_grid[i][j])}` === c ) {
+          if ( !found ) {
+            found = true
+            bfs(i, j, Math.abs(_grid[i][j]))
+          } else {
+            throw new Error("Multiple clusters of the same color found")
+          }
+        }
+      }
+    }
+    
+  }
   return ret
 }
