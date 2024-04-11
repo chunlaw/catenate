@@ -34,6 +34,7 @@ const pwaOptions: Partial<VitePWAOptions> = {
       },
     ],
     display: 'standalone',
+    background_color: "#000",
   },
   devOptions: {
     enabled: process.env.SW_DEV === "true",

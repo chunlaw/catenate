@@ -45,6 +45,7 @@ const PlayPanel = () => {
         fontSize="large"
         color="success"
         sx={{ color: isSolved ? undefined : "transparent" }}
+        onClick={nextProblem}
       />
       <Box display="flex" gap={1} justifyContent="space-between" width="100%">
         <Box display="none">

@@ -40,7 +40,7 @@ const MenuDrawer = ({ open, onClose }: MenuDrawerProps) => {
     return (
       import.meta.env.DEV ||
       problems.reduce(
-        (acc, { extra, clean }) => Boolean(acc && !extra && clean),
+        (acc, { extra, clean }) => Boolean(acc && (extra || clean)),
         true
       )
     );
@@ -67,7 +67,10 @@ const MenuDrawer = ({ open, onClose }: MenuDrawerProps) => {
               variant="outlined"
               color="inherit"
               sx={{ textTransform: "none", my: 2 }}
-              onClick={createNewBoard}
+              onClick={() => {
+                createNewBoard();
+                onClose();
+              }}
               disabled={!isAllSolved || mode === "play"}
               endIcon={!isAllSolved ? <LockIcon /> : undefined}
             >

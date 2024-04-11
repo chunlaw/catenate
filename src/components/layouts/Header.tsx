@@ -28,10 +28,10 @@ const Header = () => {
 
   return (
     <Box display="flex" justifyContent="space-between" width="100%">
-      <Fab onClick={toggleDrawer("isMenu")}>
+      <Fab onClick={toggleDrawer("isMenu")} size="small">
         <MenuIcon />
       </Fab>
-      <Fab onClick={toggleDrawer("isPalette")}>
+      <Fab onClick={toggleDrawer("isPalette")} size="small">
         <SettingsIcon />
       </Fab>
       <MenuDrawer open={state.isMenu} onClose={toggleDrawer("isMenu")} />
