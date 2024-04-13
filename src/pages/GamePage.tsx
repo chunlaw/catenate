@@ -8,7 +8,7 @@ import { Typography } from "@mui/material";
 import { replaceNumToThai } from "../utils";
 
 const GamePage = () => {
-  const { mode, problemIdx } = useContext(AppContext);
+  const { mode, problemIdx, problems } = useContext(AppContext);
   return (
     <Box
       display="flex"

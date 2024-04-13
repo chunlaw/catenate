@@ -20,7 +20,7 @@ const PlayPanel = () => {
           if (problemIdx > 0) prevProblem();
           break;
         case "ArrowRight":
-          if (problemIdx < availableProblems.length - 1) {
+          if (true || problemIdx < availableProblems.length - 1) {
             nextProblem();
           }
           break;
