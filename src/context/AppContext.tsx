@@ -275,7 +275,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
               ...prev,
               init: true,
               problems: problems.map((problem) => {
-                if (savedProblems[problem.uuid].clean) {
+                if (savedProblems[problem.uuid]?.clean) {
                   return savedProblems[problem.uuid];
                 }
                 return problem;
