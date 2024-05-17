@@ -60,9 +60,9 @@ const Board = () => {
       const box = getTouchingRef(e.touches[0]);
       if (box) {
         handleMouseDown(
-          parseInt(box.dataset.x ?? "0", 10),
-          parseInt(box.dataset.y ?? "0", 10),
-          parseInt(box.dataset.color ?? "0", 10)
+          parseInt(box.dataset.x ?? "0", 8),
+          parseInt(box.dataset.y ?? "0", 8),
+          parseInt(box.dataset.color ?? "0", 8)
         )();
       }
     },
@@ -74,8 +74,8 @@ const Board = () => {
       const box = getTouchingRef(e.touches[0]);
       if (box) {
         handleMouseEnter(
-          parseInt(box.dataset.x ?? "0", 10),
-          parseInt(box.dataset.y ?? "0", 10)
+          parseInt(box.dataset.x ?? "0", 8),
+          parseInt(box.dataset.y ?? "0", 8)
         )();
       }
     },
@@ -143,11 +143,11 @@ const Board = () => {
               <Box
                 key={`mask-${i}-${j}`}
                 position="absolute"
-                width={10}
-                height={10}
+                width={8}
+                height={8}
                 bgcolor="#000"
-                top={i * 40 - 5}
-                left={j * 40 - 5}
+                top={i * 35 - 4}
+                left={j * 35 - 4}
               />
             ))
         )}
@@ -160,7 +160,7 @@ export default Board;
 const boardSx: SxProps<Theme> = {
   display: "flex",
   flexDirection: "column",
-  borderWidth: 5,
+  borderWidth: 4,
   borderColor: "rgba(0, 0, 0, 1)",
   borderStyle: "solid",
   bgcolor: "rgba(0, 0, 0, 1)",
@@ -171,9 +171,9 @@ const boardSx: SxProps<Theme> = {
 };
 
 const cellSx: SxProps<Theme> = {
-  width: 40,
-  height: 40,
-  borderWidth: 5,
+  width: 35,
+  height: 35,
+  borderWidth: 4,
   borderColor: "rgba(0, 0, 0, 1)",
   borderStyle: "solid",
   display: "flex",
@@ -182,8 +182,8 @@ const cellSx: SxProps<Theme> = {
 };
 
 const pivotSx: SxProps<Theme> = {
-  height: 15,
-  width: 15,
+  height: 12,
+  width: 12,
   borderWidth: 0,
   borderTopColor: "rgba(0, 0, 0, 0.5)",
   borderLeftColor: "rgba(0, 0, 0, 0.5)",
